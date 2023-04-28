@@ -66,9 +66,21 @@ class Board:
         return '\n'.join(['\t'.join(sep) for sep in self.board])
 
 
-# 'W' innan står för White och 'B' innan står för black 
-Player1.white = ("white","W")
-Player2.black = ("black", "B")
+#en klass för svart plelare med includerade pjäser och positoner 
+class blackplayer:
+    def __innit__(self):
+        self.pieces = [Rook('♜'), Knight('♞'), Bishop('♝'), Queen('♛'), King('♚') , Bishop('♝'), Knight('♞'), Rook('♜')]
+        self.pieces.extend = ([Pawn('♟') for i in range(8)])
+        self.position = { '♜':[rookB1(0,0), rookB2(0,7)],'♞':[(0,1),(0,6)],  '♝':[(0,2),(0,5)], '♛':[(0,3)], '♚':[(0,4)]}
+#####
+
+#en klass för vitt plelare med includerade pjäser och positoner 
+class whiteplayer:
+    def __innit__(self):
+        self.pieces = [Rook('♖'), Knight('♘'), Bishop('♗'), Queen('♕'), King('♔') , Bishop('♗'), Knight('♘'), Rook('♖')]
+        self.pieces.extend = ([Pawn('♟') for i in range(8)])
+        self.position = { '♖':[(7,0), (7,7)],'♘':[(7,1),(7,6)],  '♗':[(7,2),(7,5)], '♕':[(7,3)], '♔':[(7,4)]}
+#####
 
 board = Board()
 rookW = Rook('♖')
