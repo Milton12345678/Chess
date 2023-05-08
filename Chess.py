@@ -28,7 +28,16 @@ class Pieces:
 
 
 class Rook(Pieces):
-    pass
+    def is_legal_move(self, current_row, current_col, new_row, new_col):
+        
+        if current_row == new_row and current_col != new_col:
+            
+            return True
+        elif current_row != new_row and current_col == new_col:
+            
+            return True
+        else:
+            return False
 
 
 class Knight(Pieces):
@@ -36,11 +45,22 @@ class Knight(Pieces):
 
 
 class Bishop(Pieces):
-    pass
+    def is_legal_move(self, current_row, current_col, new_row, new_col):
+        if current_row == new_row and current_col == new_col:
+            return False
+        elif abs(current_row - new_row) == abs(current_col - new_col):
+            return True
+        else:
+            return False
+
 
 
 class Queen(Pieces):
-    pass
+    def is_legal_move(self, current_row, current_col, new_row, new_col):
+        if abs(current_row - new_row) == abs(current_col - new_col) or  current_row == new_row and current_col != new_col or current_row != new_row and current_col == new_col:
+            return True
+        else:
+            return False 
 
 
 class King(Pieces):
@@ -60,11 +80,7 @@ class Pawn(Pieces):
                     return True
                 else:
                     return False
-            else:
-                return False
-        else:
-            return False
-
+           
 
 class Board:
     def __init__(self):
