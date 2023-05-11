@@ -1,30 +1,54 @@
+
+chess_map = {
+    0: 'a', 1: 'b', 2: 'c', 3: 'd',
+    4: 'e', 5: 'f', 6: 'g', 7: 'h'
+}
+
+def to_chess_coordinate(row, col):
+    return chess_map[col] + str(8 - row)
+
+def to_index(chess_coord):
+    col, row = chess_coord[0], chess_coord[1]
+    return 8 - int(row), ord(col) - ord('a')
+
+
+
+
 class Pieces:
-    def __init__(self, symbol, player):
+    def __init__(self, symbol, player, board):
         self.symbol = symbol
         self.player = player
+        self.board = board
+
     
     def __str__(self):
         return self.symbol
 
     def move(self, current_position, new_position):
-        #definerar den nuvariga raden och columen med hjälp av olika index
-        current_row, current_col = current_position[0], current_position[1]
+        
+        current_row, current_col = to_index(current_position)
+        new_row, new_col = to_index(new_position)
 
-        #gör samma sak fast för den nya posistionen för raden och columnen
-        new_row, new_col = new_position[0], new_position[1]
-
-        # Checkar om draget är lagligt 
+      
         if self.is_legal_move(current_row, current_col, new_row, new_col):
-            #upptaterar brädet med den nya posistionen
-            board.board[new_row][new_col] = self.symbol
-            board.board[current_row][current_col] = '  '
-            return f"{self.symbol} moved from {current_position} to {new_position}"
+       
+            self.board.board[new_row][new_col] = self.symbol
+            self.board.board[current_row][current_col] = '""  '
+
+            
+            current_chess_coord = to_chess_coordinate(current_row, current_col)
+            new_chess_coord = to_chess_coordinate(new_row, new_col)
+
+            return f"{self.symbol} moved from {current_chess_coord} to {new_chess_coord}"
         else:
             return f"Invalid move for {self.symbol}"
 
     def is_legal_move(self, current_row, current_col, new_row, new_col):
-     #lägger till en code som tittar om draget är "valid" för enkelhetens skull så returnar den alltid true
-        return True
+        return True 
+    
+
+    
+
 
 
 class Rook(Pieces):
@@ -38,10 +62,21 @@ class Rook(Pieces):
             return True
         else:
             return False
-
+    
+            
 
 class Knight(Pieces):
-    pass
+    def is_legal_move(self, current_row, current_col, new_row, new_col):
+  
+        dx = abs(current_col - new_col)
+        dy = abs(current_row - new_row)
+        
+       
+        if dx == 1 and dy == 2 or dx == 2 and dy == 1:
+            return True
+        else:
+            return False
+
 
 
 class Bishop(Pieces):
@@ -54,7 +89,6 @@ class Bishop(Pieces):
             return False
 
 
-
 class Queen(Pieces):
     def is_legal_move(self, current_row, current_col, new_row, new_col):
         if abs(current_row - new_row) == abs(current_col - new_col) or  current_row == new_row and current_col != new_col or current_row != new_row and current_col == new_col:
@@ -62,39 +96,44 @@ class Queen(Pieces):
         else:
             return False 
 
-
 class King(Pieces):
-    pass
+    def is_legal_move(self, current_row, current_col, new_row, new_col):
+        if abs(current_row - new_row) <= 1 and abs(current_col - new_col) <= 1:
+            return True
+        else:
+            return False
 
 
 class Pawn(Pieces):
     def is_legal_move(self, current_row, current_col, new_row, new_col):
         if current_col == new_col:  
             if self.player == 'white':
-                if new_row == current_row - 1:
+                if new_row == current_row - 1 or new_row == current_row - 2:
                     return True
                 else:
                     return False
             elif self.player == 'black':
-                if new_row == current_row + 1:
+                if new_row == current_row + 1 or new_row == current_row + 2:
                     return True
                 else:
-                    return False
-           
+                    return False 
+    
+
 
 class Board:
     def __init__(self):
         self.board = [['♜', '♞', '♝', '♛', '♚', '♝', '♞', '♜'],
                       ['♟', '♟', '♟', '♟', '♟', '♟', '♟', '♟'],
-                      ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
-                      ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
-                      ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
-                      ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
-                      ['♙', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
+                      ['"" '"", '"" ', '"" ', '"" ', '"" ', '"" ', '"" ', '"" '],
+                      ['"" '"", '"" ', '"" ', '"" ', '"" ', '"" ', '"" ', '"" '],
+                      ['"" '"", '"" ', '"" ', '"" ', '"" ', '"" ', '"" ', '"" '],
+                      ['"" '"", '"" ', '"" ', '"" ', '"" ', '"" ', '"" ', '"" '],
+                      ['♙ ', '♙', '♙', '♙', '♙', '♙', '♙', '♙'],
                       ['♖', '♘', '♗', '♕', '♔', '♗', '♘', '♖']]
-#Funktion som separerar rader 
+
     def __str__(self):
         return '\n'.join(['\t'.join(sep) for sep in self.board])
+
 
 
 class Player:
@@ -116,42 +155,45 @@ class Player:
                               '♛':[(0, 3)], '♚':[(0, 4)], '♟':[(1, i) for i in range(8)]}
 
 board = Board()
-rookW1 = Rook('♖', 'white')
-rookW2 = Rook('♖', 'white')
-knightW1 = Knight('♘', 'white')
-knightW2 = Knight('♘', 'white')
-bishopW1 = Bishop('♗', 'white')
-bishopW2 = Bishop('♗', 'white')
-pawnW1 = Pawn('♙', 'white')
-pawnW2 = Pawn('♙', 'white')
-pawnW3 = Pawn('♙', 'white')
-pawnW4 = Pawn('♙', 'white')
-pawnW5 = Pawn('♙', 'white')
-pawnW6 = Pawn('♙', 'white')
-pawnW7 = Pawn('♙', 'white')
-pawnW8 = Pawn('♙', 'white')
-queenW = Queen('♕', 'white')
-kingW = King('♔', 'white')
-rookB1 = Rook('♜', 'black')
-rookB2 = Rook('♜', 'black')
-knightB1 = Knight('♞', 'black')
-knightB2 = Knight('♞', 'black')
-bishopB1 = Bishop('♝', 'black')
-bishopB2 = Bishop('♝', 'black')
-queenB = Queen('♛', 'black')
-kingB = King('♚', 'black')
-pawnB1 = Pawn('♟', 'black')
-pawnB2 = Pawn('+', 'black')
-pawnB3 = Pawn('♟', 'black')
-pawnB4 = Pawn('♟', 'black')
-pawnB5 = Pawn('♟', 'black')
-pawnB6 = Pawn('♟', 'black')
-pawnB7 = Pawn('♟', 'black')
-pawnB8 = Pawn('♟', 'black')
-empty = Pieces('  ', None)  
-           
-            #Rs Cs   R   C
             
+            
+rookW1 = Rook('♖', 'white', board)
+rookW2 = Rook('♖', 'white', board)
+knightW1 = Knight('♘', 'white', board)
+knightW2 = Knight('♘', 'white', board)
+bishopW1 = Bishop('♗', 'white', board)
+bishopW2 = Bishop('♗', 'white', board)
+pawnW1 = Pawn('♙', 'white', board)
+pawnW2 = Pawn('♙', 'white', board)
+pawnW3 = Pawn('♙', 'white', board)
+pawnW4 = Pawn('♙', 'white', board)
+pawnW5 = Pawn('♙', 'white', board)
+pawnW6 = Pawn('♙', 'white', board)
+pawnW7 = Pawn('♙', 'white', board)
+pawnW8 = Pawn('♙', 'white', board)
+queenW = Queen('♕', 'white', board)
+kingW = King('♔', 'white', board)
+rookB1 = Rook('♜','black', board)
+rookB2 = Rook('♜','black', board)
+knightB1 = Knight('♞', 'black', board)
+knightB2 = Knight('♞', 'black', board)
+bishopB1 = Bishop('♝', 'black', board)
+bishopB2 = Bishop('♝', 'black', board)
+queenB = Queen('♛', 'black', board)
+kingB = King('♚', 'black', board)
+pawnB1 = Pawn('♟', 'black', board)
+pawnB2 = Pawn('♟', 'black', board)
+pawnB3 = Pawn('♟', 'black', board)
+pawnB4 = Pawn('♟', 'black', board)
+pawnB5 = Pawn('♟', 'black', board)
+pawnB6 = Pawn('♟', 'black', board)
+pawnB7 = Pawn('♟', 'black', board)
+pawnB8 = Pawn('♟', 'black', board)
+# empty = Pieces('  ', None)    
 
-pawnB1.move((1,0), (2,0))
-print(board)
+           
+pawnW2.move(('b2'),('b4'))
+pawnW2.move(('b4'),('b6'))
+
+            
+print(board) 
