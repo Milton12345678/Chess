@@ -45,7 +45,8 @@ class Pieces:
 
     def is_legal_move(self, current_row, current_col, new_row, new_col):
         return True 
-    
+    def is_path_clear(self, current_row, current_col, new_row, new_col):
+        return True
 
     
 
@@ -62,7 +63,18 @@ class Rook(Pieces):
             return True
         else:
             return False
-    
+    def is_path_clear(self, current_row, current_col, new_row, new_col):
+        if current_row == new_row:
+            step = 1 if new_col > current_col else -1
+            for col in range(current_col + step, new_col, step):
+                if self.board.board[current_row][col] != '"" ':
+                    return False
+        else:
+            step = 1 if new_row > current_row else -1
+            for row in range(current_row + step, new_row, step):
+                if self.board.board[row][current_col] != '"" ':
+                    return False 
+        return True 
             
 
 class Knight(Pieces):
@@ -88,14 +100,47 @@ class Bishop(Pieces):
         else:
             return False
 
+    def is_path_clear(self, current_row, current_col, new_row, new_col):
+        row_step = 1 if new_row > current_row else -1
+        col_step = 1 if new_col > current_col else -1
 
+        row, col = current_row + row_step, current_col + col_step
+        while row != new_row and col != new_col:
+            if self.board.board[row][col] != '"" ':
+                return False
+            row += row_step
+            col += col_step
+
+        return True
 class Queen(Pieces):
     def is_legal_move(self, current_row, current_col, new_row, new_col):
         if abs(current_row - new_row) == abs(current_col - new_col) or  current_row == new_row and current_col != new_col or current_row != new_row and current_col == new_col:
             return True
         else:
             return False 
+    def is_path_clear(self, current_row, current_col, new_row, new_col):
+        if current_row == new_row:
+            step = 1 if new_col > current_col else -1
+            for col in range(current_col + step, new_col, step):
+                if self.board.board[current_row][col] != '"" ':
+                    return False
+        elif current_col == new_col:
+            step = 1 if new_row > current_row else -1
+            for row in range(current_row + step, new_row, step):
+                if self.board.board[row][current_col] != '"" ':
+                    return False
+        else:
+            row_step = 1 if new_row > current_row else -1
+            col_step = 1 if new_col > current_col else -1
 
+            row, col = current_row + row_step, current_col + col_step
+            while row != new_row and col != new_col:
+                if self.board.board[row][col] != '"" ':
+                    return False
+                row += row_step
+                col += col_step
+
+        return True
 class King(Pieces):
     def is_legal_move(self, current_row, current_col, new_row, new_col):
         if abs(current_row - new_row) <= 1 and abs(current_col - new_col) <= 1:
@@ -118,7 +163,19 @@ class Pawn(Pieces):
                 else:
                     return False 
     
+    def is_path_clear(self, current_row, current_col, new_row, new_col):
+        if current_col == new_col:
+            if self.player == 'white':
+                step = -1
+            elif self.player == 'black':
+                step = 1
+            for row in range(current_row + step, new_row, step):
+                if self.board.board[row][current_col] != '"" ':
+                    return False
+        else:
+            return False
 
+        return True
 
 class Board:
     def __init__(self):
