@@ -1,4 +1,6 @@
 
+#import time
+
 chess_map = {
     0: 'a', 1: 'b', 2: 'c', 3: 'd',
     4: 'e', 5: 'f', 6: 'g', 7: 'h'
@@ -12,17 +14,7 @@ def to_index(chess_coord):
     return 8 - int(row), ord(col) - ord('a')
 
 
-
-
 class Pieces:
-    def __init__(self, symbol, player, board):
-        self.symbol = symbol
-        self.player = player
-        self.board = board
-
-    def __str__(self):
-        return self.symbol
-
     def move(self, current_position, new_position):
         current_row, current_col = to_index(current_position)
         new_row, new_col = to_index(new_position)
@@ -31,18 +23,25 @@ class Pieces:
             if self.is_path_clear(current_row, current_col, new_row, new_col):
                 if self.cant_take_own_color(current_row, current_col, new_row, new_col):
                     self.board.board[new_row][new_col] = self.symbol
-                    self.board.board[current_row][current_col] = '""  '
+                    self.board.board[current_row][current_col] = '""'
 
                     current_chess_coord = to_chess_coordinate(current_row, current_col)
                     new_chess_coord = to_chess_coordinate(new_row, new_col)
 
-                    return f"{self.symbol} moved from {current_chess_coord} to {new_chess_coord}"
+                    print(f"{self.symbol} moved from {current_chess_coord} to {new_chess_coord}")
+
+                    
+                    opponent_color = "white" if self.player == "black" else "black"
+                    if not self.board.is_king_alive(opponent_color):
+                        winner_color = self.player
+                        print(f"{winner_color.capitalize()} wins! The opponent's king is no longer in the game.")
+                        
                 else:
-                    return f"{self.symbol} cannot take its own color"
+                    print(f"{self.symbol} cannot take its own color")
             else:
-                return f"There is a piece in the path for {self.symbol}"
+                print(f"There is a piece in the path for {self.symbol}")
         else:
-            return f"Invalid move for {self.symbol}"
+            print(f"Invalid move for {self.symbol}")
 
     def is_legal_move(self, current_row, current_col, new_row, new_col):
         return True
@@ -58,21 +57,16 @@ class Pieces:
             return False
         return True
 
-    
-
-
 
 class Rook(Pieces):
     def is_legal_move(self, current_row, current_col, new_row, new_col):
-        
         if current_row == new_row and current_col != new_col:
-            
             return True
         elif current_row != new_row and current_col == new_col:
-            
             return True
         else:
             return False
+
     def is_path_clear(self, current_row, current_col, new_row, new_col):
         if current_row == new_row:
             step = 1 if new_col > current_col else -1
@@ -85,6 +79,7 @@ class Rook(Pieces):
                 if self.board.board[row][current_col] != '"" ':
                     return False 
         return True 
+    
             
 
 class Knight(Pieces):
@@ -122,12 +117,15 @@ class Bishop(Pieces):
             col += col_step
 
         return True
+
+
 class Queen(Pieces):
     def is_legal_move(self, current_row, current_col, new_row, new_col):
-        if abs(current_row - new_row) == abs(current_col - new_col) or  current_row == new_row and current_col != new_col or current_row != new_row and current_col == new_col:
+        if abs(current_row - new_row) == abs(current_col - new_col) or current_row == new_row and current_col != new_col or current_row != new_row and current_col == new_col:
             return True
         else:
-            return False 
+            return False
+
     def is_path_clear(self, current_row, current_col, new_row, new_col):
         if current_row == new_row:
             step = 1 if new_col > current_col else -1
@@ -151,6 +149,7 @@ class Queen(Pieces):
                 col += col_step
 
         return True
+
 class King(Pieces):
     def is_legal_move(self, current_row, current_col, new_row, new_col):
         if abs(current_row - new_row) <= 1 and abs(current_col - new_col) <= 1:
@@ -160,7 +159,6 @@ class King(Pieces):
 
 
 class Pawn(Pieces):
-    class Pawn(Pieces):
     def is_legal_move(self, current_row, current_col, new_row, new_col):
         if current_col == new_col:
             if self.player == 'white':
@@ -180,14 +178,16 @@ class Pawn(Pieces):
                 return True
             else:
                 return False
-    
-    
+
+
     def is_path_clear(self, current_row, current_col, new_row, new_col):
         if current_col == new_col:
             if self.player == 'white':
                 step = -1
             elif self.player == 'black':
                 step = 1
+
+            
             for row in range(current_row + step, new_row, step):
                 if self.board.board[row][current_col] != '"" ':
                     return False
@@ -195,6 +195,11 @@ class Pawn(Pieces):
             return False
 
         return True
+
+            
+        
+    
+
 
 class Board:
     def __init__(self):
@@ -209,8 +214,13 @@ class Board:
 
     def __str__(self):
         return '\n'.join(['\t'.join(sep) for sep in self.board])
-
-
+    def is_king_alive(self, color):
+        king_symbol = '♔' if color == 'white' else '♚'
+        for row in self.board:
+            if king_symbol in row:
+                return True
+        return False
+    
 
 class Player:
     def __init__(self, name, color):
@@ -229,47 +239,40 @@ class Player:
             self.pawns = [Pawn('♙', self.color) for i in range(8)]
             self.position = {'♜' :[(0, 0), (0, 7)], '♞':[(0, 1), (0, 6)], '♝':[(0, 2), (0, 5)],
                               '♛':[(0, 3)], '♚':[(0, 4)], '♟':[(1, i) for i in range(8)]}
-
+        
+            
+            
+    
 board = Board()
             
             
-rookW1 = Rook('♖', 'white', board)
-rookW2 = Rook('♖', 'white', board)
-knightW1 = Knight('♘', 'white', board)
-knightW2 = Knight('♘', 'white', board)
-bishopW1 = Bishop('♗', 'white', board)
-bishopW2 = Bishop('♗', 'white', board)
-pawnW1 = Pawn('♙', 'white', board)
-pawnW2 = Pawn('♙', 'white', board)
-pawnW3 = Pawn('♙', 'white', board)
-pawnW4 = Pawn('♙', 'white', board)
-pawnW5 = Pawn('♙', 'white', board)
-pawnW6 = Pawn('♙', 'white', board)
-pawnW7 = Pawn('♙', 'white', board)
-pawnW8 = Pawn('♙', 'white', board)
+rookW = Rook('♖', 'white', board)
+knightW = Knight('♘', 'white', board)
+bishopW = Bishop('♗', 'white', board)
+pawnW = Pawn('♙', 'white', board)
 queenW = Queen('♕', 'white', board)
 kingW = King('♔', 'white', board)
-rookB1 = Rook('♜','black', board)
-rookB2 = Rook('♜','black', board)
-knightB1 = Knight('♞', 'black', board)
-knightB2 = Knight('♞', 'black', board)
-bishopB1 = Bishop('♝', 'black', board)
-bishopB2 = Bishop('♝', 'black', board)
+rookB = Rook('♜','black', board)
+knightB = Knight('♞', 'black', board)
+bishopB = Bishop('♝', 'black', board)
 queenB = Queen('♛', 'black', board)
 kingB = King('♚', 'black', board)
-pawnB1 = Pawn('♟', 'black', board)
-pawnB2 = Pawn('♟', 'black', board)
-pawnB3 = Pawn('♟', 'black', board)
-pawnB4 = Pawn('♟', 'black', board)
-pawnB5 = Pawn('♟', 'black', board)
-pawnB6 = Pawn('♟', 'black', board)
-pawnB7 = Pawn('♟', 'black', board)
-pawnB8 = Pawn('♟', 'black', board)
-# empty = Pieces('  ', None)    
+pawnB = Pawn('♟', 'black', board)
+empty = Pieces('  ', None, board)    
 
            
-pawnW2.move(('b2'),('b4'))
-pawnW2.move(('b4'),('b6'))
-
-            
+pawnW.move(('d2'),('d3'))
+bishopW.move(('c1'),('d2'))
+pawnW.move(('a2'),('a3'))
+bishopW.move(('d2'),('a5'))
+pawnW.move(('a3'),('a4'))
+pawnW.move(('a4'),('a6'))
+rookW.move(('a1'),('a2'))
+pawnW.move(('b2'),('b4'))
+rookW.move(('a2'),('b2'))
+rookW.move(('b2'),('b3'))
+rookW.move(('b3'),('c3'))
+rookW.move(('c3'),('c7'))
+pawnW.move(('e2'),('e3'))
+queenW.move(('d1'),('f3'))
 print(board) 
