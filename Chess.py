@@ -160,18 +160,27 @@ class King(Pieces):
 
 
 class Pawn(Pieces):
+    class Pawn(Pieces):
     def is_legal_move(self, current_row, current_col, new_row, new_col):
-        if current_col == new_col:  
+        if current_col == new_col:
             if self.player == 'white':
-                if new_row == current_row - 1 or new_row == current_row - 2:
+                if new_row == current_row - 1 or (current_row == 6 and new_row == current_row - 2):
                     return True
                 else:
                     return False
             elif self.player == 'black':
-                if new_row == current_row + 1 or new_row == current_row + 2:
+                if new_row == current_row + 1 or (current_row == 1 and new_row == current_row + 2):
                     return True
                 else:
-                    return False 
+                    return False
+        elif abs(current_col - new_col) == 1 and abs(current_row - new_row) == 1:
+            if self.player == 'white' and new_row == current_row - 1:
+                return True
+            elif self.player == 'black' and new_row == current_row + 1:
+                return True
+            else:
+                return False
+    
     
     def is_path_clear(self, current_row, current_col, new_row, new_col):
         if current_col == new_col:
