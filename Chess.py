@@ -20,32 +20,42 @@ class Pieces:
         self.player = player
         self.board = board
 
-    
     def __str__(self):
         return self.symbol
 
     def move(self, current_position, new_position):
-        
         current_row, current_col = to_index(current_position)
         new_row, new_col = to_index(new_position)
 
-      
         if self.is_legal_move(current_row, current_col, new_row, new_col):
-       
-            self.board.board[new_row][new_col] = self.symbol
-            self.board.board[current_row][current_col] = '""  '
+            if self.is_path_clear(current_row, current_col, new_row, new_col):
+                if self.cant_take_own_color(current_row, current_col, new_row, new_col):
+                    self.board.board[new_row][new_col] = self.symbol
+                    self.board.board[current_row][current_col] = '""  '
 
-            
-            current_chess_coord = to_chess_coordinate(current_row, current_col)
-            new_chess_coord = to_chess_coordinate(new_row, new_col)
+                    current_chess_coord = to_chess_coordinate(current_row, current_col)
+                    new_chess_coord = to_chess_coordinate(new_row, new_col)
 
-            return f"{self.symbol} moved from {current_chess_coord} to {new_chess_coord}"
+                    return f"{self.symbol} moved from {current_chess_coord} to {new_chess_coord}"
+                else:
+                    return f"{self.symbol} cannot take its own color"
+            else:
+                return f"There is a piece in the path for {self.symbol}"
         else:
             return f"Invalid move for {self.symbol}"
 
     def is_legal_move(self, current_row, current_col, new_row, new_col):
-        return True 
+        return True
+
     def is_path_clear(self, current_row, current_col, new_row, new_col):
+        return True 
+
+    def cant_take_own_color(self, current_row, current_col, new_row, new_col):
+        destination_piece = self.board.board[new_row][new_col]
+        if self.player == "white" and destination_piece in ['♙', '♘', '♗', '♕', '♖', '♔']:
+            return False
+        elif self.player == "black" and destination_piece in ['♟', '♜', '♞', '♝', '♛', '♚']:
+            return False
         return True
 
     
